@@ -1,4 +1,4 @@
-# dockerfile-minimize
+# 🪚Dockerfile-Minimize
 
 ## 🤝 Team Members
 | <img src="https://github.com/kcs19.png" width="200px"> |  <img src="https://github.com/unoYoon.png" width="200px"> |
@@ -27,6 +27,115 @@ Spring Boot 애플리케이션을 실제로 Docker화하여 배포 및 실행 �
 | ⚙️ **Backend Framework**   | ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=spring&logoColor=white) |
 | 🧑‍💻 **Programming Language** | ![Java](https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white) |
 | 🐧 **Operating System**    | ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=white) ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) |
+
+<br>
+
+# 목차
+
+1. [🤝 Team Members](#-team-members)
+2. [🥅 Goal](#-goal)
+    - [개요](#개요)
+    - [목표](#목표)
+    - [🛠️Stack](#️stack)
+3. [🤔문제 발견](#문제-발견)
+    - [Tomcat은 OpenJDK 사용](#tomcat은-openjdk-사용)
+4. [🛠 1. JDK와 JRE 비교](#1-jdk와-jre-비교)
+    - [JDK (Java Development Kit)](#jdk-java-development-kit)
+    - [JRE (Java Runtime Environment)](#jre-java-runtime-environment)
+    - [결론](#결론)
+5. [🫙2. 경량화 작업](#2-경량화-작업)
+    - [2.1 다양한 JDK/JRE 버전의 용량 비교](#21-다양한-jdkjre-버전의-용량-비교)
+    - [2.2 eclipse-temurin:17-jre-alpine 선택](#22-eclipse-temurin17-jre-alpine-선택)
+6. [📖 Process](#-process)
+    - [1. Spring Boot JAR 파일 준비](#1-spring-boot-jar-파일-준비)
+    - [2. Dockerfile 작성](#2-dockerfile-작성)
+    - [3. Docker 이미지 만들기](#3-docker-이미지-만들기)
+    - [4. Docker 컨테이너 실행 확인](#4-docker-컨테이너-실행-확인)
+    - [5. Docker Hub에 이미지 Push](#5-docker-hub에-이미지-push)
+    - [6. 다른 사람이 Docker Hub에서 Pull하고 컨테이너 실행](#6-다른-사람이-docker-hub에서-pull하고-컨테이너-실행)
+7. [💥 TroubleShooting](#-troubleshooting)
+    - [수정 전 코드](#수정-전-코드)
+    - [사용하고 싶었던 이유](#사용하고-싶었던-이유)
+    - [문제 상황](#문제-상황)
+    - [해결 방법](#해결-방법)
+8. [🔎 Review](#-review)
+
+
+<br>
+
+
+## 🤔문제 발견
+
+### **Tomcat은 OpenJDK 사용**
+
+→ Tomcat은 기본적으로 JDK를 사용하지만, 실행만 하는 환경에서는 JRE가 더 적합함.
+
+![image](https://github.com/user-attachments/assets/abeb626c-efed-4598-a175-5c399e11f1d1)
+
+
+<br>
+
+---
+
+<br>
+
+
+## 🛠 **1. JDK와 JRE 비교**
+
+### **JDK (Java Development Kit)**
+
+- **전체 개발 환경**을 제공하며, Java 개발 도구(컴파일러, 디버거 등)와 **라이브러리**도 포함
+
+### **JRE (Java Runtime Environment)**
+
+- **JDK의 일부**로, 개발 도구나 라이브러리는 포함되지 않으며, Java **애플리케이션 실행 환경**만을 제공
+
+💡 **결론**
+
+**→ JDK보다 JRE가 더 가벼운 환경을 제공하며, 실행 목적에 맞는 효율적인 선택임.**
+
+<br>
+<br>
+
+## 🫙2. **경량화 작업**
+
+### 🔎 2.1 다양한 JDK/JRE 버전의 용량 비교
+
+| **이름** | **버전** | **용량** |
+| --- | --- | --- |
+| **openjdk** | 17 | 471MB |
+| **openjdk** | 17-slim | 408MB |
+| **openjdk** | 17-alpine | 326MB |
+- **openjdk:17**
+    - 전체 JDK 환경 제공
+    - 필요한 라이브러리나 도구들이 기본적으로 포함되어 있어 개발 및 디버깅 환경에 적합
+    - 가장 큰 용량
+- **openjdk:17-slim**
+    - 라이브러리나 도구 등 불필요한 파일을 최소화한 경량화된 버전
+    - **개발용**이나 **배포용 적합**
+- **openjdk:17-alpine**
+    - 시스템 라이브러리가 최소화된 환경
+    - 가장 작은 용량
+    - **보안**과 **최소화된 환경**
+    - **호환성** 문제나 **디버깅**이 필요한 경우에는 추가 라이브러리를 설치 필요
+    
+    **⇒ 시스템 라이브러리가 최소화된 환경으로 가장 작은 용량의 alpine 버전 선택**
+
+<br>
+
+
+  ### 👉**2.2 eclipse-temurin:17-jre-alpine 선택**
+
+- JRE만 제공하는 공식적인 이미지
+- **180MB 최소화된 크기**
+
+![image](https://github.com/user-attachments/assets/ac20d02d-da4c-4cdb-bdae-1cc32a3cd849)
+
+
+![image](https://github.com/user-attachments/assets/a2d8bd2e-5f80-4c57-974a-5e7efa9a16e0)
+
+
+
 
 
 ## 📖 Process
